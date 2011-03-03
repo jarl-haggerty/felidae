@@ -1,0 +1,16 @@
+<calico>
+  <level>
+    <pixels-per-meter>16</pixels-per-meter>
+    <width>1000</width>
+    <height>1000</height>
+    <background-color>0,0,255</background-color>
+  </level>
+  <agents>
+    <agent>
+      <role>quitter</role>
+    </agent>
+    <agent>
+      <role>nothing</role>
+    </agent>
+  </agents>
+</calico>

@@ -1,8 +1,12 @@
-(ns org.curious.interface
+(ns org.curious.felidae.interface
   (:require [clojure.xml :as xml]
             [clojure.zip :as zip]
+            [clojure.string :as string]
+            [clojure.java.io :as io]
             [clojure.contrib.zip-filter.xml :as zf]
-            [clojure.contrib.prxml :as prxml])
+            [clojure.contrib.prxml :as prxml]
+            [org.curious.felidae.game :as game]
+            [org.curious.felidae.core :as core])
   (:import java.awt.GraphicsEnvironment
            java.awt.GraphicsDevice
            java.awt.DisplayMode
@@ -18,70 +22,64 @@
 (def graphics-device (.getDefaultScreenDevice graphics-environment))
 (def display-mode (atom nil))
 (def fullscreen (atom false))
+(def gl)
 
 (def gl-listener (proxy [GLEventListener] []
                    (display [drawable] (binding [gl (-> drawable .getGL .getGL2)]
-                                         (game/draw)))
+                                         (game/render)))
                    (dispose [drawable])
                    (init [drawable])
                    (reshape [drawable x y width height])))
 
-(GLProfile/initSingleton)
+(GLProfile/initSingleton true)
 (def gl-profile (GLProfile/getDefault))
 (def gl-capabilities (GLCapabilities. gl-profile))
-(def canvas (doto (GLCanvas. gl-capabilities)
-              (.addGLEventListener gl-listener)))
+(def gl-canvas (doto (GLCanvas. gl-capabilities)
+                 (.addGLEventListener gl-listener)))
 
-(def animator (doto (FPSAnimator. canvas 60)
-                (.add canvas)))
+(def animator (doto (FPSAnimator. gl-canvas 60)
+                (.add gl-canvas)))
 
-(def frame (doto (JFrame. game/title)
+(def frame (doto (JFrame.)
+             (.setDefaultCloseOperation JFrame/EXIT_ON_CLOSE)
              (.setResizable false)
              (.add gl-canvas)))
 
-(defn load-settings
+(defn load-settings []
   (let [data (zip/xml-zip (xml/parse "settings.xml"))
-        screen-width (Integer/valueOf (zf/xml-> data :screen-width zf/text))
-        screen-height (Integer/valueOf (zf/xml-> data :screen-height zf/text))
+        screen-width (Integer/parseInt (string/trim (first (zf/xml-> data :screen-width zf/text))))
+        screen-height (Integer/parseInt (string/trim (first (zf/xml-> data :screen-height zf/text))))
         new-fullscreen (and (.isFullScreenSupported graphics-device)
                             (.isDisplayChangeSupported graphics-device)
-                            (Boolean/valueOf (zf/xml-> data :fullscreen zf/text)))]
+                            (Boolean/parseBoolean (string/trim (first (zf/xml-> data :fullscreen zf/text)))))]
     (if-let [new-display-mode (first (filter #(and (= screen-width (.getWidth %)) (= screen-height (.getHeight %))) (.getDisplayModes graphics-device)))]
       (swap! display-mode (fn [x] new-display-mode))
       (swap! display-mode (fn [x] (min-key #(.getWidth %) (.getDisplayModes graphics-device)))))
     (swap! fullscreen (fn [x] new-fullscreen))
-    (with-open [output (writer "settings.xml")]
-      (.write output (with-str-out
-                       (binding [prxml/*prxml-indent* 2]
-                         (proxml prxml [:settings
-                                        [:screen-width (.getWidth @display-mode)]
-                                        [:screen-height (.getHeight @screen-height)]
-                                        [:fullscreen fullscreen]])))))))
+    (with-open [output (io/writer "settings.xml")]
+      (binding [prxml/*prxml-indent* 2
+                *out* output]
+        (prxml/prxml [:settings
+                      [:screen-width (.getWidth @display-mode)]
+                      [:screen-height (.getHeight @display-mode)]
+                      [:fullscreen @fullscreen]])))))
 
 (defn init-display []
-  (if fullscreen
+  (if @fullscreen
     (do (.setUndecorated frame true)
         (.setIgnoreRepaint frame true)
         (.setVisible frame true)
         (.setFullScreenWindow graphics-device frame)
         (.setDisplayMode graphics-device @display-mode))
-    (do (.setUndecorated frame false)
+    (let [insets (.getInsets frame)]
+        (.setUndecorated frame false)
         (.setIgnoreRepaint frame false)
+        (.setSize frame (+ (.getWidth @display-mode) (.left insets) (.right insets))
+                        (+ (.getHeight @display-mode) (.bottom insets) (.top insets)))
         (.setVisible frame true)))
   (.start animator))
 
-(defn init []
+(defn init [title]
+  (.setTitle frame title)
   (load-settings)
   (init-display))
-
-(defn set-color [gl red green blue alpha]
-  (.glColor gl red green blue alpha))
-
-(defn set-clear-color [gl red green blue alpha]
-  (.glClearColor gl red green blue alpha))
-
-(defn draw-lines [gl & points]
-  (.glBegin gl GL/GL_LINE_STRIP)
-  (doseq [point points]
-    (apply #(.glVertex3f gl %1 %2 %3) point))
-  (.glEnd gl))
