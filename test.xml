@@ -9,8 +9,5 @@
     <agent>
       <role>quitter</role>
     </agent>
-    <agent>
-      <role>nothing</role>
-    </agent>
   </agents>
 </calico>

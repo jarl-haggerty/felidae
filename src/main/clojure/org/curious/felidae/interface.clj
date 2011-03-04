@@ -6,10 +6,12 @@
             [clojure.contrib.zip-filter.xml :as zf]
             [clojure.contrib.prxml :as prxml]
             [org.curious.felidae.game :as game]
-            [org.curious.felidae.core :as core])
+            [org.curious.felidae.render :as render])
   (:import java.awt.GraphicsEnvironment
            java.awt.GraphicsDevice
            java.awt.DisplayMode
+           java.awt.event.KeyListener
+           java.awt.event.WindowListener
            javax.swing.JFrame
            javax.media.opengl.GLEventListener
            javax.media.opengl.GLProfile
@@ -20,37 +22,58 @@
 
 (def graphics-environment (GraphicsEnvironment/getLocalGraphicsEnvironment))
 (def graphics-device (.getDefaultScreenDevice graphics-environment))
+(def desktop-display-mode (.getDisplayMode graphics-device))
 (def display-mode (atom nil))
 (def fullscreen (atom false))
-(def gl)
+(def frame)
 
 (def gl-listener (proxy [GLEventListener] []
-                   (display [drawable] (binding [gl (-> drawable .getGL .getGL2)]
-                                         (game/render)))
-                   (dispose [drawable])
+                   (display [drawable]
+                            (binding [render/gl (-> drawable .getGL .getGL2)]
+                              (.glClear render/gl GL/GL_COLOR_BUFFER_BIT)
+                              (swap! render/gl-queue #(doseq [x %] (x)))
+                              (game/render)))
+                   (dispose [drawable] (println (.hashCode (Thread/currentThread))))
                    (init [drawable])
                    (reshape [drawable x y width height])))
+(def key-listener (proxy [KeyListener] []
+                    (keyPressed [event]
+                                (game/process-input event))
+                    (keyReleased [event])
+                    (keyTyped [event])))
+(def window-listener (proxy [WindowListener] []
+                       (windowActivated [event])
+                       (windowClosed [event] (.dispose frame))
+                       (windowClosing [event] (System/exit 0))
+                       (windowDeactivated [event])
+                       (windowDeiconified [event])
+                       (windowIconified [event])
+                       (windowOpened [event])))
 
 (GLProfile/initSingleton true)
 (def gl-profile (GLProfile/getDefault))
 (def gl-capabilities (GLCapabilities. gl-profile))
 (def gl-canvas (doto (GLCanvas. gl-capabilities)
-                 (.addGLEventListener gl-listener)))
+                 (.addGLEventListener gl-listener)
+                 (.addKeyListener key-listener)
+                 (.setFocusable true)))
 
 (def animator (doto (FPSAnimator. gl-canvas 60)
                 (.add gl-canvas)))
 
 (def frame (doto (JFrame.)
-             (.setDefaultCloseOperation JFrame/EXIT_ON_CLOSE)
+             (.addWindowListener window-listener)
              (.setResizable false)
              (.add gl-canvas)))
+
+(defn shutdown []
+  (System/exit 0))
 
 (defn load-settings []
   (let [data (zip/xml-zip (xml/parse "settings.xml"))
         screen-width (Integer/parseInt (string/trim (first (zf/xml-> data :screen-width zf/text))))
         screen-height (Integer/parseInt (string/trim (first (zf/xml-> data :screen-height zf/text))))
         new-fullscreen (and (.isFullScreenSupported graphics-device)
-                            (.isDisplayChangeSupported graphics-device)
                             (Boolean/parseBoolean (string/trim (first (zf/xml-> data :fullscreen zf/text)))))]
     (if-let [new-display-mode (first (filter #(and (= screen-width (.getWidth %)) (= screen-height (.getHeight %))) (.getDisplayModes graphics-device)))]
       (swap! display-mode (fn [x] new-display-mode))

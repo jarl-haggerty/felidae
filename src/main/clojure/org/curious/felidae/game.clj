@@ -1,5 +1,6 @@
 (ns org.curious.felidae.game
   (:require [org.curious.felidae.agent :as agent]
+            [org.curious.felidae.render :as render]
             [clojure.xml :as xml]
             [clojure.zip :as zip]
             [clojure.contrib.zip-filter :as zf]
@@ -18,31 +19,37 @@
 (def width)
 (def height)
 
-(defn agent-map [agents]
-  (into {} (for [a agents]
+(defn agent-map [input]
+  (into {} (for [a input]
              [(:name a) a])))
 
 (defn load-level [file-name]
   (let [data (zip/xml-zip (xml/parse file-name))
-        _ (println (zfx/xml-> data :agents :agent zip/node))
-        agent-data (map (fn [x] (->> x zf/children (map #(vector (:tag %) (:content %))) (into {}))) (zfx/xml-> data :agents :agent))
+        agent-data (map #(into {} (for [property (:content %)]
+                                    [(:tag property) (first (:content property))]))
+                        (zfx/xml-> data :agents :agent zip/node))
         new-agent-set (set (map agent/create agent-data))
-        color-components (string/split (zfx/xml-> :level :background-color zfx/text) #",\s*")]
-    (swap! pixels-per-meter (fn [x] (Double/parseDouble (zfx/xml-> :level :pixels-per-meter zfx/text))))
-    (swap! simulation (fn [x] (World. (AABB. (Vec2. 0 0) (Vec2. (Double/parseDouble (zfx/xml-> :level :width zfx/text))
-                                                               (Double/parseDouble (zfx/xml-> :level :height zfx/text))))
+        _ (println (first (zfx/xml-> data :level :background-color zfx/text)))
+        color-components (map #(Integer/parseInt %) (string/split (first (zfx/xml-> data :level :background-color zfx/text)) #",\s*"))]
+    (swap! pixels-per-meter (fn [x] (Double/parseDouble (first (zfx/xml-> data :level :pixels-per-meter zfx/text)))))
+    (swap! simulation (fn [x] (World. (AABB. (Vec2. 0 0) (Vec2. (Double/parseDouble (first (zfx/xml-> data :level :width zfx/text)))
+                                                               (Double/parseDouble (first (zfx/xml-> data :level :height zfx/text)))))
                                      (Vec2. 0 0)
                                      true)))
     (swap! background (fn [x] (Color. (first color-components) (second color-components) (last color-components))))
-    (swap! agent-set (fn [x] (with-bindings [agent-set new-agent-set
-                                            agents (agent-map new-agent-set)]
-                              (map agent/initialize agent-set))))))
+    (render/on-gl-thread (fn [] (render/set-clear-color @background)))
+    (binding [agents (agent-map new-agent-set)]
+      (swap! agent-set (fn [x] (keep agent/initialize new-agent-set))))))
 
 (defn update []
   (binding [agents (agent-map @agent-set)
             simulation @simulation]
-    (swap! agent-set #(map agent/update %)))
+    (swap! agent-set #(keep agent/update %)))
   (.step simulation 1/60 6))
+
+(defn process-input [event]
+  (let [temp (doall (keep #(agent/process-input % event) @agent-set))]
+    (swap! agent-set (fn [x] temp))))
 
 (defn render []
      (doseq [a @agent-set]
