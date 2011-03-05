@@ -34,7 +34,8 @@
                               (swap! render/gl-queue #(doseq [x %] (x)))
                               (game/render)))
                    (dispose [drawable] (println (.hashCode (Thread/currentThread))))
-                   (init [drawable])
+                   (init [drawable]
+                         )
                    (reshape [drawable x y width height])))
 (def key-listener (proxy [KeyListener] []
                     (keyPressed [event]

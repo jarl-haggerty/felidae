@@ -24,7 +24,7 @@
              [(:name a) a])))
 
 (defn load-level [file-name]
-  (let [data (zip/xml-zip (xml/parse file-name))
+  (let [data (zip/xml-zip (xml/parse (str "levels/" file-name)))
         agent-data (map #(into {} (for [property (:content %)]
                                     [(:tag property) (first (:content property))]))
                         (zfx/xml-> data :agents :agent zip/node))
