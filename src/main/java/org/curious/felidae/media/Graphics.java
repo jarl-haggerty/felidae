@@ -18,6 +18,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,6 +64,8 @@ public class Graphics {
     }
 
     public void start(){
+        textures = new HashMap<String, Texture>();
+
         glProfile = GLProfile.getDefault();
         glCapabilities = new GLCapabilities(glProfile);
         glCanvas = new GLCanvas(glCapabilities);

@@ -55,11 +55,26 @@ public class Box implements Actor {
             texels.add(new Vec2(1, 0));
             texels.add(new Vec2(1, 1));
             texels.add(new Vec2(0, 1));
+            
+            texture = renderer.loadTexture("Crate.bmp");
             vbo = renderer.createVBO(vertices, texels);
-            texture = renderer.loadTexture("Test.png");
         }
+        
         renderer.setColor(Color.white);
-        renderer.drawBody(body);
+        renderer.setTexture(texture);
+        renderer.transform(body.getXForm());
+//        renderer.gl.glBegin(renderer.gl.GL_QUADS);
+//        renderer.gl.glTexCoord2f(0, 0);
+//        renderer.gl.glVertex2f(0, 0);
+//        renderer.gl.glTexCoord2f(1, 0);
+//        renderer.gl.glVertex2f(width, 0);
+//        renderer.gl.glTexCoord2f(1, 1);
+//        renderer.gl.glVertex2f(width, height);
+//        renderer.gl.glTexCoord2f(0, 1);
+//        renderer.gl.glVertex2f(0, height);
+//        renderer.gl.glEnd();
+        //renderer.setColor(Color.red);
+        renderer.renderVBO(vbo);
     }
 
     public boolean update(State state) {
@@ -76,13 +91,13 @@ public class Box implements Actor {
             body.createShape(polygonDef);
             body.setMassFromShapes();
         }
+        body.applyTorque(10);
         if(name.equals("One")){
-            body.applyForce(new Vec2(0, -10), body.getWorldCenter());
+            body.applyForce(new Vec2(0, -5), body.getWorldCenter());
         }else{
             body.applyImpulse(body.getLinearVelocity().mul(-body.getMass()), body.getWorldCenter());
-            body.applyImpulse(new Vec2(0, -10), body.getWorldCenter());
+            body.applyImpulse(new Vec2(0, -5), body.getWorldCenter());
         }
-        System.out.println(body.getLinearVelocity());
         return true;
     }
 

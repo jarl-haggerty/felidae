@@ -13,23 +13,31 @@
         </Element>
         <Element>
             <Role>org.curious.felidae.actors.Camera</Role>
-            <X>100</X>
-            <Y>100</Y>
+            <X>500</X>
+            <Y>500</Y>
             <Height>100</Height>
         </Element>
         <Element>
             <Role>org.curious.felidae.actors.Box</Role>
             <Name>One</Name>
-            <X>150</X>
-            <Y>180</Y>
+            <X>530</X>
+            <Y>580</Y>
+            <Width>10</Width>
+            <Height>10</Height>
+        </Element>
+        <Element>
+            <Role>org.curious.felidae.actors.Box</Role>
+            <Name>One</Name>
+            <X>550</X>
+            <Y>580</Y>
             <Width>10</Width>
             <Height>10</Height>
         </Element>
         <Element>
             <Role>org.curious.felidae.actors.Box</Role>
             <Name>Two</Name>
-            <X>170</X>
-            <Y>180</Y>
+            <X>570</X>
+            <Y>580</Y>
             <Width>10</Width>
             <Height>10</Height>
         </Element>

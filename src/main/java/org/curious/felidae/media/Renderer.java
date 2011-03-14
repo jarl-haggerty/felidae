@@ -91,6 +91,37 @@ public class Renderer {
         gl.glTexCoordPointer(2, GL.GL_FLOAT, 0, 0);
 
         gl.glDrawArrays(GL.GL_TRIANGLE_FAN, 0, vbo.length);
+        
+        gl.glDisableClientState(GL2.GL_VERTEX_ARRAY);
+        gl.glDisableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
+    }
+
+    public VBO createVBO(List<Vec2> vertexList, List<Vec2> texelList){
+        FloatBuffer vertexBuffer = FloatBuffer.allocate(vertexList.size()*3);
+        FloatBuffer texelBuffer = FloatBuffer.allocate(texelList.size()*2);
+        for(Vec2 point : vertexList){
+            vertexBuffer.put(point.x);
+            vertexBuffer.put(point.y);
+            vertexBuffer.put(0);
+        }
+        vertexBuffer.flip();
+        for(Vec2 point : texelList){
+            texelBuffer.put(point.x);
+            texelBuffer.put(point.y);
+        }
+        texelBuffer.flip();
+
+        int[] vbo = new int[2];
+        gl.glGenBuffers(1, vbo, 0);
+        gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, vbo[0]);
+        System.out.println(vertexBuffer.capacity());
+        gl.glBufferData(GL.GL_ARRAY_BUFFER, vertexBuffer.capacity()*4, vertexBuffer, GL2.GL_STATIC_DRAW);
+        gl.glGenBuffers(1, vbo, 1);
+        gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, vbo[1]);
+        System.out.println(texelBuffer.capacity());
+        gl.glBufferData(GL.GL_ARRAY_BUFFER, texelBuffer.capacity()*4, texelBuffer, GL2.GL_STATIC_DRAW);
+
+        return new VBO(vbo[0], vbo[1], vertexList.size());
     }
 
     public Texture loadTexture(String name){
@@ -109,35 +140,19 @@ public class Renderer {
     }
 
     public void setTexture(Texture texture){
-        gl.glBindTexture(GL.GL_TEXTURE_2D, texture.getTarget());
+        texture.enable();
+        texture.bind();
     }
 
-    public VBO createVBO(List<Vec2> vertexList, List<Vec2> texelList){
-        FloatBuffer vertexBuffer = FloatBuffer.allocate(vertexList.size()*3);
-        FloatBuffer texelBuffer = FloatBuffer.allocate(texelList.size()*2);
-        int index = 0;
-        for(Vec2 point : vertexList){
-            vertexBuffer.put(point.x);
-            vertexBuffer.put(point.y);
-            vertexBuffer.put(0);
-            index += 3;
-        }
-        index = 0;
-        for(Vec2 point : texelList){
-            texelBuffer.put(point.x);
-            texelBuffer.put(point.y);
-            index += 2;
-        }
+    public void transform(XForm xForm){
+        transform(xForm.position, Math.toDegrees(Math.atan2(xForm.R.col1.y, xForm.R.col1.x)));
+    }
 
-        int[] vbo = new int[2];
-        gl.glGenBuffers(1, vbo, 0);
-        gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, vbo[0]);
-        gl.glBufferData(GL.GL_ARRAY_BUFFER, vertexBuffer.capacity()*4, vertexBuffer, GL2.GL_STATIC_DRAW);
-        gl.glGenBuffers(1, vbo, 1);
-        gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, vbo[1]);
-        gl.glBufferData(GL.GL_ARRAY_BUFFER, texelBuffer.capacity()*4, texelBuffer, GL2.GL_STATIC_DRAW);
-
-        return new VBO(vbo[0], vbo[1], vertexList.size());
+    public void transform(Vec2 translation, double rotation){
+        gl.glMatrixMode(GL2.GL_MODELVIEW);
+        gl.glLoadIdentity();
+        gl.glTranslatef(translation.x, translation.y, 0);
+        gl.glRotated(rotation, 0, 0, 1);
     }
 
     public void setColor(Color color) {

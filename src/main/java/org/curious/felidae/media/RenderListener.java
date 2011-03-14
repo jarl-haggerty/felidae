@@ -27,6 +27,11 @@ public class RenderListener implements GLEventListener {
     }
 
     public void init(GLAutoDrawable glad) {
+        GL2 gl = glad.getGL().getGL2();
+        System.out.println(gl.isFunctionAvailable("glGenBuffersARB"));
+        System.out.println(gl.isFunctionAvailable("glBindBufferARB"));
+        System.out.println(gl.isFunctionAvailable("glBufferDataARB"));
+        System.out.println(gl.isFunctionAvailable("glDeleteBuffersARB"));
     }
 
     public void dispose(GLAutoDrawable glad) {
