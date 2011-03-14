@@ -13,8 +13,7 @@
         </Element>
         <Element>
             <Role>org.curious.felidae.actors.Camera</Role>
-            <X>500</X>
-            <Y>500</Y>
+            <Tracking>Two</Tracking>
             <Height>100</Height>
         </Element>
         <Element>
@@ -40,6 +39,14 @@
             <Y>580</Y>
             <Width>10</Width>
             <Height>10</Height>
+        </Element>
+        <Element>
+            <Role>org.curious.felidae.actors.Box</Role>
+            <Name>Three</Name>
+            <X>610</X>
+            <Y>580</Y>
+            <Width>100</Width>
+            <Height>100</Height>
         </Element>
     </Elements>
 </Calico>

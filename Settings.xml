@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Graphics>
-    <ScreenWidth>640</ScreenWidth>
-    <ScreenHeight>480</ScreenHeight>
-    <FullScreen>false</FullScreen>
+    <ScreenWidth>1680</ScreenWidth>
+    <ScreenHeight>1050</ScreenHeight>
+    <FullScreen>true</FullScreen>
 </Graphics>

@@ -76,7 +76,6 @@ public class Graphics {
         animator.add(glCanvas);
         frame = new JFrame(game.title);
         frame.addWindowListener(new DisplayListener(game));
-        frame.setResizable(false);
         frame.add(glCanvas);
         display();
     }
@@ -110,12 +109,14 @@ public class Graphics {
     public void display(){
         animator.start();
         if(fullScreen){
+            frame.setResizable(true);
             frame.setUndecorated(true);
             frame.setIgnoreRepaint(true);
             frame.setVisible(true);
             graphicsDevice.setFullScreenWindow(frame);
             graphicsDevice.setDisplayMode(displayMode);
         }else{
+            frame.setResizable(false);
             frame.setUndecorated(false);
             frame.setIgnoreRepaint(false);
             Insets insets = frame.getInsets();

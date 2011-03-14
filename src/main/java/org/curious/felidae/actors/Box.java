@@ -63,17 +63,6 @@ public class Box implements Actor {
         renderer.setColor(Color.white);
         renderer.setTexture(texture);
         renderer.transform(body.getXForm());
-//        renderer.gl.glBegin(renderer.gl.GL_QUADS);
-//        renderer.gl.glTexCoord2f(0, 0);
-//        renderer.gl.glVertex2f(0, 0);
-//        renderer.gl.glTexCoord2f(1, 0);
-//        renderer.gl.glVertex2f(width, 0);
-//        renderer.gl.glTexCoord2f(1, 1);
-//        renderer.gl.glVertex2f(width, height);
-//        renderer.gl.glTexCoord2f(0, 1);
-//        renderer.gl.glVertex2f(0, height);
-//        renderer.gl.glEnd();
-        //renderer.setColor(Color.red);
         renderer.renderVBO(vbo);
     }
 
@@ -94,7 +83,8 @@ public class Box implements Actor {
         body.applyTorque(10);
         if(name.equals("One")){
             body.applyForce(new Vec2(0, -5), body.getWorldCenter());
-        }else{
+        }else if(name.equals("Two")){
+            System.out.println(body.getWorldCenter());
             body.applyImpulse(body.getLinearVelocity().mul(-body.getMass()), body.getWorldCenter());
             body.applyImpulse(new Vec2(0, -5), body.getWorldCenter());
         }

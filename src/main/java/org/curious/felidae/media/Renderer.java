@@ -52,6 +52,7 @@ public class Renderer {
         gl.glLoadIdentity();
         gl.glOrtho(x, x+width, y, y+height, -1, 1);
         game.graphics.view = new Rectangle2D.Double(x, y, width, height);
+        System.out.println(game.graphics.view);
     }
     
     public double getViewRatio(){
@@ -114,11 +115,9 @@ public class Renderer {
         int[] vbo = new int[2];
         gl.glGenBuffers(1, vbo, 0);
         gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, vbo[0]);
-        System.out.println(vertexBuffer.capacity());
         gl.glBufferData(GL.GL_ARRAY_BUFFER, vertexBuffer.capacity()*4, vertexBuffer, GL2.GL_STATIC_DRAW);
         gl.glGenBuffers(1, vbo, 1);
         gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, vbo[1]);
-        System.out.println(texelBuffer.capacity());
         gl.glBufferData(GL.GL_ARRAY_BUFFER, texelBuffer.capacity()*4, texelBuffer, GL2.GL_STATIC_DRAW);
 
         return new VBO(vbo[0], vbo[1], vertexList.size());
