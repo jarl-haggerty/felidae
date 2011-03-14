@@ -1,4 +1,4 @@
-package org.curious.pounce2;
+package org.curious.felidae;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
