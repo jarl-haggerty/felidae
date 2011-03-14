@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Calico>
+    <Level>
+        <PixelsPerMeter>16</PixelsPerMeter>
+        <Width>1000</Width>
+        <Height>1000</Height>
+        <BackgroundColor>0,0,0</BackgroundColor>
+    </Level>
+    <Elements>
+        <Element>
+            <Role>org.curious.felidae.actors.Background</Role>
+            <Color>0,0,0</Color>
+        </Element>
+        <Element>
+            <Role>org.curious.felidae.actors.Camera</Role>
+            <X>100</X>
+            <Y>100</Y>
+            <Height>100</Height>
+        </Element>
+        <Element>
+            <Role>org.curious.felidae.actors.Box</Role>
+            <Name>One</Name>
+            <X>150</X>
+            <Y>180</Y>
+            <Width>10</Width>
+            <Height>10</Height>
+        </Element>
+        <Element>
+            <Role>org.curious.felidae.actors.Box</Role>
+            <Name>Two</Name>
+            <X>170</X>
+            <Y>180</Y>
+            <Width>10</Width>
+            <Height>10</Height>
+        </Element>
+    </Elements>
+</Calico>
