@@ -52,7 +52,6 @@ public class Renderer {
         gl.glLoadIdentity();
         gl.glOrtho(x, x+width, y, y+height, -1, 1);
         game.graphics.view = new Rectangle2D.Double(x, y, width, height);
-        System.out.println(game.graphics.view);
     }
     
     public double getViewRatio(){

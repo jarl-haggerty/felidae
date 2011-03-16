@@ -84,7 +84,6 @@ public class Box implements Actor {
         if(name.equals("One")){
             body.applyForce(new Vec2(0, -5), body.getWorldCenter());
         }else if(name.equals("Two")){
-            System.out.println(body.getWorldCenter());
             body.applyImpulse(body.getLinearVelocity().mul(-body.getMass()), body.getWorldCenter());
             body.applyImpulse(new Vec2(0, -5), body.getWorldCenter());
         }
