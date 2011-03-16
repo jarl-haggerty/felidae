@@ -71,8 +71,11 @@ limitations under the License.
         <version>1.1</version>
         <configuration>
           <executable>java</executable>
-          <classpath/>
-          <argument>org.curious.felidae.Main</argument>
+	  <arguments>
+	    <argument>-classpath</argument>
+            <classpath/>
+            <argument>org.curious.felidae.Main</argument>
+	  </arguments>
         </configuration>
       </plugin>
       <plugin>
