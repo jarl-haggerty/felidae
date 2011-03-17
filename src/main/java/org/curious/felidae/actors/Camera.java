@@ -12,6 +12,7 @@ import org.curious.felidae.media.Input;
 import org.curious.felidae.media.Renderer;
 import org.curious.felidae.state.Actor;
 import org.curious.felidae.state.State;
+import org.jbox2d.dynamics.contacts.ContactPoint;
 
 /**
  *
@@ -49,6 +50,10 @@ public class Camera implements Actor {
     }
 
     public void processInput(Input input) {
+    }
+
+    public void processContact(ContactPoint contactPoint) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

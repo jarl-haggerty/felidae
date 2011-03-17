@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import javax.media.opengl.GLException;
 import org.curious.felidae.Game;
 import java.awt.Color;
+import java.awt.DisplayMode;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.nio.FloatBuffer;
@@ -20,9 +21,11 @@ import java.util.List;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import org.jbox2d.collision.shapes.CircleShape;
+import org.jbox2d.collision.shapes.PointShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Vec2;
+import org.jbox2d.common.Vec3;
 import org.jbox2d.common.XForm;
 import org.jbox2d.dynamics.Body;
 
@@ -50,20 +53,27 @@ public class Renderer {
     public void setView(double x, double y, double width, double height) {
         gl.glMatrixMode(GL2.GL_PROJECTION);
         gl.glLoadIdentity();
-        gl.glOrtho(x, x+width, y, y+height, -1, 1);
+        gl.glOrtho(x, x+width, y, y+height, -1, 100);
         game.graphics.view = new Rectangle2D.Double(x, y, width, height);
     }
+
+    public DisplayMode getDisplayMode(){
+        return game.graphics.displayMode;
+    }
     
-    public double getViewRatio(){
-        return 1.0*game.graphics.displayMode.getWidth()/game.graphics.displayMode.getHeight();
+    public float getViewRatio(){
+        return 1f*game.graphics.displayMode.getWidth()/game.graphics.displayMode.getHeight();
     }
 
     public void drawBody(Body body) {
+        if(body == null){
+            return;
+        }
         Vec2 temp;
         for(Shape s = body.getShapeList();s != null;s = s.getNext()){
             if(s instanceof PolygonShape){
                 PolygonShape s2 = (PolygonShape)s;
-                gl.glBegin(GL2.GL_POLYGON);
+                gl.glBegin(GL2.GL_LINE_LOOP);
                     for(int a = 0;a < s2.getVertexCount();a++){
                         temp = XForm.mul(body.getXForm(), s2.m_vertices[a]);
                         gl.glVertex2f(temp.x, temp.y);
@@ -72,10 +82,15 @@ public class Renderer {
             }else if(s instanceof CircleShape){
                 CircleShape s2 = (CircleShape)s;
                 temp = XForm.mul(body.getXForm(), s2.m_localPosition);
-                gl.glBegin(gl.GL_POLYGON);
+                gl.glBegin(gl.GL_LINE_LOOP);
                     for(float a = 0;a < 2*Math.PI;a += 2*Math.PI/100){
                         gl.glVertex2f(temp.x + (float)Math.cos(a)*s2.m_radius, temp.y + (float)Math.sin(a)*s2.m_radius);
                     }
+                gl.glEnd();
+            }else if(s instanceof PointShape){
+                gl.glBegin(gl.GL_POINTS);
+                temp = XForm.mul(body.getXForm(), ((PointShape)s).m_localPosition);
+                gl.glVertex2f(temp.x, temp.y);
                 gl.glEnd();
             }
         }
@@ -138,8 +153,12 @@ public class Renderer {
     }
 
     public void setTexture(Texture texture){
-        texture.enable();
-        texture.bind();
+        if(texture == null){
+            gl.glDisable(GL2.GL_TEXTURE_2D);
+        }else{
+            texture.enable();
+            texture.bind();
+        }
     }
 
     public void transform(XForm xForm){
@@ -150,6 +169,13 @@ public class Renderer {
         gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();
         gl.glTranslatef(translation.x, translation.y, 0);
+        gl.glRotated(rotation, 0, 0, 1);
+    }
+
+    public void transform(Vec3 translation, double rotation){
+        gl.glMatrixMode(GL2.GL_MODELVIEW);
+        gl.glLoadIdentity();
+        gl.glTranslatef(translation.x, translation.y, -translation.z);
         gl.glRotated(rotation, 0, 0, 1);
     }
 

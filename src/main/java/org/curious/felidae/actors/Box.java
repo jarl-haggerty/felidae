@@ -19,6 +19,7 @@ import org.jbox2d.collision.shapes.PolygonDef;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
+import org.jbox2d.dynamics.contacts.ContactPoint;
 
 /**
  *
@@ -91,5 +92,9 @@ public class Box implements Actor {
     }
 
     public void processInput(Input input) {
+    }
+
+    public void processContact(ContactPoint contactPoint) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

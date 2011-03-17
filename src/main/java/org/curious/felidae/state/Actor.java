@@ -9,6 +9,7 @@ import org.curious.felidae.Game;
 import org.curious.felidae.media.Input;
 import org.curious.felidae.media.Renderer;
 import javax.media.opengl.GL;
+import org.jbox2d.dynamics.contacts.ContactPoint;
 
 /**
  *
@@ -19,4 +20,5 @@ public interface Actor {
     public abstract void render(Renderer renderer);
     public boolean update(State state);
     public void processInput(Input input);
+    public void processContact(ContactPoint contactPoint);
 }

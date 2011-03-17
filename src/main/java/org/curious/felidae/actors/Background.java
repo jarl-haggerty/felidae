@@ -14,6 +14,7 @@ import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.util.Map;
 import javax.media.opengl.GL;
+import org.jbox2d.dynamics.contacts.ContactPoint;
 
 /**
  *
@@ -54,5 +55,9 @@ public class Background implements Actor {
         if(((KeyEvent)input.event).getKeyCode() == KeyEvent.VK_ESCAPE){
             quit = true;
         }
+    }
+
+    public void processContact(ContactPoint contactPoint) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

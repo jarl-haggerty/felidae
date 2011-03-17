@@ -42,6 +42,7 @@ public class State {
     public WorldListener worldListener;
     public IPersistentMap cast;
     public Timer timer;
+    public boolean reset;
 
     public State(Game game){
         this.game = game;
@@ -49,20 +50,20 @@ public class State {
 
     public Actor loadActor(Map<String, String> code) throws InvocationTargetException{
         try {
-            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-            String mainClass = stackTrace[stackTrace.length-1].getClassName();
             Class<?> theClass = Class.forName(code.get("Role"));
             Class<?> []parameters = {Map.class};
             Constructor<?> constructor = theClass.getConstructor(parameters);
             Actor a = (Actor)constructor.newInstance(code);
             return a;
         } catch (Exception ex) {
-            System.err.println(ex);
+            ex.printStackTrace();
         }
         return null;
     }
 
     public void load(String level) {
+        reset = true;
+        cast = PersistentHashMap.EMPTY;
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db;
@@ -75,28 +76,29 @@ public class State {
             pixelsPerMeter = Double.parseDouble(code.get("PixelsPerMeter"));
             Vec2 dimensions = new Vec2(Float.parseFloat(code.get("Width")), Float.parseFloat(code.get("Height")));
 
-            world = new World(new AABB(new Vec2(0, 0), dimensions.add(dimensions)), new Vec2(0, 0), true);
+            world = new World(new AABB(new Vec2(-10, -10), dimensions.add(dimensions)), new Vec2(0, 0), true);
             worldListener = new WorldListener();
             world.setContactListener(worldListener);
 
-            cast = PersistentHashMap.EMPTY;
+            IPersistentMap newCast = PersistentHashMap.EMPTY;
             Actor nextActor = null;
             NodeList elements = document.getElementsByTagName("Elements").item(0).getChildNodes();
             for(int a = 0;a < elements.getLength();a++){
                 if(elements.item(a).getNodeType() == Node.ELEMENT_NODE){
                     code = Utils.parseCode(elements.item(a));
                     nextActor = loadActor(code);
-                    if(cast.containsKey(nextActor.getName())){
-                        cast = cast.assoc(nextActor.getName(),
+                    if(newCast.containsKey(nextActor.getName())){
+                        newCast = newCast.assoc(nextActor.getName(),
                                           ((IPersistentSet)cast.valAt(nextActor.getName())).cons(nextActor));
                     }else{
-                        cast = cast.assoc(nextActor.getName(),
+                        newCast = newCast.assoc(nextActor.getName(),
                                           PersistentHashSet.create(nextActor));
                     }
                 }
             }
+            cast = newCast;
         } catch (Exception ex) {
-            System.err.println(ex);
+            ex.printStackTrace();
         }
     }
 
@@ -107,5 +109,19 @@ public class State {
 
     public void stop(){
         timer.stop();
+    }
+
+    public IPersistentSet getActor(String name) {
+        return (IPersistentSet)cast.valAt(name);
+    }
+
+    public void addActor(Actor actor) {
+        if(cast.containsKey(actor.getName())){
+            cast = cast.assoc(actor.getName(),
+                              ((IPersistentSet)cast.valAt(actor.getName())).cons(actor));
+        }else{
+            cast = cast.assoc(actor.getName(),
+                              PersistentHashSet.create(actor));
+        }
     }
 }

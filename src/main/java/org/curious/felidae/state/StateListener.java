@@ -43,6 +43,10 @@ public class StateListener implements ActionListener{
                 }
                 actors = actors.next();
             }
+            if(game.state.reset){
+                game.state.reset = false;
+                break;
+            }
             IPersistentCollection resultSet = newSet.persistent();
             try {
                 if(resultSet.count() == 0){

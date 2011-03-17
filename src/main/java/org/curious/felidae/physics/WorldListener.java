@@ -5,6 +5,7 @@
 
 package physics;
 
+import org.curious.felidae.state.Actor;
 import org.jbox2d.dynamics.ContactListener;
 import org.jbox2d.dynamics.contacts.ContactPoint;
 import org.jbox2d.dynamics.contacts.ContactResult;
@@ -16,19 +17,17 @@ import org.jbox2d.dynamics.contacts.ContactResult;
 public class WorldListener implements ContactListener {
 
     public void add(ContactPoint point) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        ((Actor)point.shape1.getBody().getUserData()).processContact(point);
+        ((Actor)point.shape2.getBody().getUserData()).processContact(point);
     }
 
     public void persist(ContactPoint point) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void remove(ContactPoint point) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void result(ContactResult point) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

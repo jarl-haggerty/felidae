@@ -28,6 +28,12 @@ public class RenderListener implements GLEventListener {
 
     public void init(GLAutoDrawable glad) {
         GL2 gl = glad.getGL().getGL2();
+        gl.glEnable(GL2.GL_BLEND);
+        gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+        gl.glEnable(GL2.GL_DEPTH_TEST);
+        gl.glDepthFunc(GL2.GL_LEQUAL);
+
+        gl.glPointSize(10f);
     }
 
     public void dispose(GLAutoDrawable glad) {
@@ -36,7 +42,7 @@ public class RenderListener implements GLEventListener {
     public void display(GLAutoDrawable glad) {
         GL2 gl = glad.getGL().getGL2();
         Renderer renderer = new Renderer(gl, game);
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT);
+        gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
         for(Object o : game.state.cast){
             ISeq seq = ((IPersistentSet)((MapEntry)o).val()).seq();
             while(seq != null){
